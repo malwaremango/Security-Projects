@@ -10,7 +10,7 @@ See the project descriptions below:
 
 
 
-# 1 Python Log Analyzer Pro (Security monitoring tool)
+# 1. Python Log Analyzer Pro (Security monitoring tool)
 
 Python Log Analyzer Pro is a Python-based security tool for analyzing log files and identifying suspicious activity.
 
