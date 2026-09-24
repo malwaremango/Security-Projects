@@ -231,7 +231,7 @@ Potential future improvements include:
 
 ## Disclaimer
 
-This project is intended for **educational purposes, testing, and security analysis**.
+This project is intended for **educational purposes, testing, and security analysis**. The files added to the log analyzer are not real and are for testing purposes only (gemini and auth.log)
 
 The results should be treated as an aid during log investigations and should not be used alone to determine whether an actual security incident has occurred.
 
