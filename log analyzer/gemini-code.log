@@ -1,0 +1,41 @@
+2026-09-18T12:14:03.452Z firewall01 CEF:0|Vendor|Firewall|1.0|100|Connection Allowed|Low|src=203.0.113.45 dst=10.0.1.25 spt=54321 dpt=443 proto=TCP act=ALLOW
+2026-09-18T12:14:05.891Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000001|Possible SQL Injection Attempt|High|src=198.51.100.77 dst=10.0.2.15 spt=49832 dpt=80 proto=TCP msg=Detected SQL injection pattern in URI: /login.php?id=1' OR '1'='1
+2026-09-18T12:14:08.203Z auth-server CEF:0|Vendor|Auth|3.0|4625|Failed Login Attempt|Medium|src=192.0.2.88 dst=10.0.3.10 spt=52100 dpt=22 proto=TCP user=admin reason=Invalid password attempt=3
+2026-09-18T12:14:11.677Z firewall01 CEF:0|Vendor|Firewall|1.0|101|Connection Denied|Medium|src=203.0.113.45 dst=10.0.1.30 spt=61234 dpt=3389 proto=TCP act=DENY reason=GeoIP blocked (Country: RU)
+2026-09-18T12:14:15.112Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000015|Brute Force Attack Detected|High|src=198.51.100.77 dst=10.0.3.10 spt=0 dpt=22 proto=TCP msg=Multiple failed SSH logins from same source (threshold exceeded: 15 attempts in 60s)
+2026-09-18T12:14:18.445Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30012|Malware Detected|Critical|src=10.0.4.55 file=C:\Users\jdoe\Downloads\invoice.exe hash=a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456 action=Quarantined threat=Trojan.GenericKD.48291
+2026-09-18T12:14:22.901Z web-proxy01 CEF:0|Vendor|Proxy|1.5|403|Blocked Malicious URL|High|src=10.0.5.12 dst=185.220.101.45 url=http://malicious-domain.example/payload.exe category=Malware action=BLOCK
+2026-09-18T12:14:27.334Z auth-server CEF:0|Vendor|Auth|3.0|4624|Successful Login|Low|src=10.0.6.88 dst=10.0.3.10 spt=53421 dpt=22 proto=TCP user=j.smith method=publickey
+2026-09-18T12:14:31.789Z firewall01 CEF:0|Vendor|Firewall|1.0|102|Port Scan Detected|High|src=203.0.113.99 dst=10.0.1.0/24 spt=0 dpt=0 proto=TCP act=DROP msg=Sequential port scan detected (ports 20-1024)
+2026-09-18T12:14:35.056Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000042|Command and Control Traffic|Critical|src=10.0.7.33 dst=185.234.72.15 spt=49152 dpt=443 proto=TCP msg=Suspected C2 beaconing (JA3 fingerprint match: known malware family)
+2026-09-18T12:15:02.118Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000055|Cross-Site Scripting (XSS) Attempt|High|src=198.51.100.91 dst=10.0.2.15 spt=50211 dpt=443 proto=TCP msg=Possible XSS payload detected in parameter: <script>alert(1)</script>
+2026-09-18T12:15:07.334Z auth-server CEF:0|Vendor|Auth|3.0|4625|Failed Login Attempt|Medium|src=203.0.113.120 dst=10.0.3.10 spt=49876 dpt=22 proto=TCP user=root reason=Invalid password attempt=7
+2026-09-18T12:15:11.901Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30018|Suspicious PowerShell Activity|High|src=10.0.4.78 process=powershell.exe cmdline=powershell -enc JABjAGwAaQBlAG4AdAAgAD0... action=Blocked
+2026-09-18T12:15:16.445Z dns-server01 CEF:0|Vendor|DNS|1.2|5001|Suspicious DNS Query|Medium|src=10.0.5.22 query=update-service.malware-c2.example type=A action=NXDOMAIN
+2026-09-18T12:15:21.778Z firewall01 CEF:0|Vendor|Firewall|1.0|103|Outbound Connection Blocked|High|src=10.0.7.33 dst=185.234.72.15 spt=49152 dpt=443 proto=TCP act=DENY reason=Known C2 destination
+2026-09-18T12:15:26.112Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000061|Possible Directory Traversal|Medium|src=198.51.100.55 dst=10.0.2.15 spt=51122 dpt=80 proto=TCP msg=Path traversal attempt: ../../etc/passwd
+2026-09-18T12:15:31.556Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30025|Ransomware Behavior Detected|Critical|src=10.0.4.90 file=C:\Users\public\encrypt.exe threat=Ransomware.Generic action=Quarantined
+2026-09-18T12:15:36.889Z web-proxy01 CEF:0|Vendor|Proxy|1.5|404|Phishing Site Blocked|High|src=10.0.5.40 dst=45.33.32.156 url=https://paypal-secure-login.example/account category=Phishing action=BLOCK
+2026-09-18T12:15:42.223Z auth-server CEF:0|Vendor|Auth|3.0|4672|Special Privileges Assigned|Medium|src=10.0.6.15 user=admin msg=User assigned SeDebugPrivilege
+2026-09-18T12:15:47.667Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000070|Possible Data Exfiltration|High|src=10.0.8.12 dst=203.0.113.200 spt=52000 dpt=443 proto=TCP msg=Large outbound data transfer (850MB in 5 minutes)
+2026-09-18T12:15:52.001Z firewall01 CEF:0|Vendor|Firewall|1.0|104|ICMP Flood Detected|Medium|src=198.51.100.200 dst=10.0.1.1 proto=ICMP act=DROP msg=High rate of ICMP echo requests
+2026-09-18T12:15:57.445Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30031|Credential Dumping Tool Detected|Critical|src=10.0.4.55 process=mimikatz.exe threat=HackTool.Mimikatz action=Blocked
+2026-09-18T12:16:02.778Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000082|Exploit Kit Activity|High|src=10.0.5.12 dst=185.220.101.88 msg=Possible exploit kit landing page detected
+2026-09-18T12:16:08.112Z auth-server CEF:0|Vendor|Auth|3.0|4625|Failed Login Attempt|Medium|src=192.0.2.150 dst=10.0.3.10 spt=50321 dpt=3389 proto=TCP user=administrator reason=Account locked out
+2026-09-18T12:16:13.556Z dns-server01 CEF:0|Vendor|DNS|1.2|5002|DNS Tunneling Suspected|High|src=10.0.7.40 query=aGVsbG8gd29ybGQ.long-subdomain.malware-tunnel.example type=TXT
+2026-09-18T12:16:18.901Z web-proxy01 CEF:0|Vendor|Proxy|1.5|405|Cryptominer Domain Blocked|Medium|src=10.0.5.67 dst=104.21.12.45 url=http://coinhive-miner.example/lib.js category=Cryptomining action=BLOCK
+2026-09-18T12:16:24.334Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30040|Unauthorized USB Device|Low|src=10.0.4.22 device=USB\VID_1234&PID_5678 action=Blocked msg=Unknown USB storage device connected
+2026-09-18T12:16:29.667Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000095|Possible Remote Code Execution|Critical|src=198.51.100.77 dst=10.0.2.15 msg=Suspicious payload matching known RCE signature
+2026-09-18T12:16:35.001Z firewall01 CEF:0|Vendor|Firewall|1.0|105|Connection Allowed|Low|src=10.0.6.88 dst=8.8.8.8 spt=53111 dpt=53 proto=UDP act=ALLOW
+2026-09-18T12:17:01.120Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30050|Malware Detection|High|src=10.0.4.12 file=C:\Users\user1\AppData\Local\Temp\emotet_dropper.dll threat=Emotet action=Quarantined
+2026-09-18T12:17:05.450Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30051|Banking Trojan Detected|Critical|src=10.0.4.15 process=svchost_fake.exe threat=TrickBot action=Blocked
+2026-09-18T12:17:10.890Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30052|Ransomware Outbreak|Critical|src=10.0.4.88 process=tasksche.exe threat=WannaCry action=Quarantined msg=Worm functionality disabled
+2026-09-18T12:17:15.210Z web-proxy01 CEF:0|Vendor|Proxy|1.5|406|C2 Traffic Blocked|High|src=10.0.5.33 dst=192.168.1.100 url=http://c2-server.net/qakbot_payload category=Malware action=BLOCK threat=QakBot
+2026-09-18T12:17:20.550Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30053|Ransomware Detected|Critical|src=10.0.4.99 file=C:\ProgramData\lockbit.exe threat=LockBit action=Quarantined
+2026-09-18T12:17:25.880Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000101|Post-Exploitation Tool|High|src=10.0.2.45 dst=10.0.2.100 msg=Detected Cobalt Strike beacon payload in HTTPS header
+2026-09-18T12:17:30.120Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30054|InfoStealer Detected|High|src=10.0.4.60 file=C:\Users\admin\Downloads\agent_tesla.exe threat=Agent Tesla action=Blocked
+2026-09-18T12:17:35.340Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30055|Credential Stealer Detected|High|src=10.0.4.61 process=redline.exe threat=RedLine action=Quarantined
+2026-09-18T12:17:40.770Z ids-sensor01 CEF:0|Vendor|IDS|2.1|2000105|IoT Botnet Activity|Medium|src=10.0.9.12 dst=185.220.101.5 spt=23 dpt=23 proto=TCP msg=Mirai botnet scanning behavior detected
+2026-09-18T12:17:45.900Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30056|APT Activity Detected|Critical|src=10.0.1.10 process=s7ot.dll threat=Stuxnet action=Blocked msg=Industrial control system target pattern
+2026-09-18T12:17:50.230Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30057|RAT Detected|High|src=10.0.4.70 process=asyncrat.exe threat=AsyncRAT action=Quarantined
+2026-09-18T12:17:55.660Z endpoint-edr01 CEF:0|Vendor|EDR|4.2|30058|Banking Trojan|High|src=10.0.4.18 file=C:\Temp\zeus_v2.exe threat=Zeus action=Blocked
