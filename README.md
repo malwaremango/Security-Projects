@@ -1,7 +1,7 @@
 #  Security Project
 Welcome! This repository will be used to host and showcase my upcoming security projects. 
 
-See the descriptions below:
+See the project descriptions below:
 
 
 
@@ -10,7 +10,7 @@ See the descriptions below:
 
 
 
-# Python Log Analyzer Pro (Security monitoring tool)
+# 1 Python Log Analyzer Pro (Security monitoring tool)
 
 Python Log Analyzer Pro is a Python-based security tool for analyzing log files and identifying suspicious activity.
 
