@@ -157,7 +157,7 @@ The project structure may change as additional modules and features are added.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/malwaremango/Security-Projects/tree/main/log%20analyzer
+git clone https://github.com/malwaremango/Security-Projects.git
 ```
 
 ### 2. Navigate to the project directory
