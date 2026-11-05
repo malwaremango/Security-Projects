@@ -118,7 +118,7 @@ Think like an attacker. Build like a defender.
 
 
 
-# 2. $${\color{emerald}\text{Python Log Analyzer Pro (Security monitoring tool)}}$$  
+# 2. $${\color{limegreen}\text{Python Log Analyzer Pro (Security monitoring tool)}}$$  
 
 Python Log Analyzer Pro is a Python-based security tool for analyzing log files and identifying suspicious activity.
 
