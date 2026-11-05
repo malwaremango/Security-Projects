@@ -4,8 +4,7 @@ Welcome! This repository will be used to host and showcase my upcoming security 
 See the descriptions below:
 
 
-
-1. CyberVault
+CyberVault
 ==========
 
 Unlock. Exploit. Learn.
