@@ -4,7 +4,7 @@ Welcome! This repository will be used to host and showcase my upcoming security 
 See the descriptions below:
 
 
-1.. $${\color{red}\text{CyberVault}}$$
+1.. $${\color{emerald}\text{CyberVault}}$$
 ==========
 
 Unlock. Exploit. Learn.
@@ -118,8 +118,8 @@ Think like an attacker. Build like a defender.
 
 
 
-# 2. Python Log Analyzer Pro (Security monitoring tool)
-
+# 2. $${\color{red}\text{Python Log Analyzer Pro (Security monitoring tool)
+}}$$ 
 Python Log Analyzer Pro is a Python-based security tool for analyzing log files and identifying suspicious activity.
 
 The project was developed as a practical cybersecurity project to detect and investigate activities such as brute-force attacks, unauthorized access, malware-related activity, phishing, and other security events found in log files.
