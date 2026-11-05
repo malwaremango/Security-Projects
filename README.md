@@ -5,7 +5,7 @@ See the descriptions below:
 
 
 
-CyberVault
+1. CyberVault
 ==========
 
 Unlock. Exploit. Learn.
@@ -119,7 +119,7 @@ Think like an attacker. Build like a defender.
 
 
 
-# Python Log Analyzer Pro (Security monitoring tool)
+# 2. Python Log Analyzer Pro (Security monitoring tool)
 
 Python Log Analyzer Pro is a Python-based security tool for analyzing log files and identifying suspicious activity.
 
