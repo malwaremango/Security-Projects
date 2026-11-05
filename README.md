@@ -5,6 +5,115 @@ See the descriptions below:
 
 
 
+CyberVault
+==========
+
+Unlock. Exploit. Learn.
+
+CyberVault is a client-side Capture The Flag (CTF) learning platform for
+beginner to intermediate cybersecurity practice. Solve knowledge- and
+text-based challenges across five categories, earn points, use optional
+hints, track progress, and unlock write-ups — all in the browser.
+
+
+What it is
+----------
+
+A single-page web app (one HTML file) that runs entirely in the browser.
+Progress, bookmarks, hints used, username, and theme are stored in
+localStorage on the device. No backend or account is required for the
+demo.
+
+Categories
+----------
+
+  • Web        – HTTP, cookies, XSS, SQLi, headers, access control, etc.
+  • Crypto     – Caesar, Base64, XOR, ROT13, Vigenère, hashes, classic ciphers
+  • Forensics  – magic bytes, tools, memory, steganography, artifacts
+  • Reverse    – strings, ELF/PE, calling conventions, packers, analysis concepts
+  • OSINT      – DNS, WHOIS, search operators, recon, threat intelligence basics
+
+Challenges use the flag format: CTF{...}
+
+
+Main features
+-------------
+
+  • Browse, search, filter (category / difficulty) and sort challenges
+  • Challenge detail panel with description, hints, and flag submission
+  • Hints cost points (default −15 per hint); reward is reduced accordingly
+  • Instant flag checks and toast notifications
+  • Progress dashboard, per-category stats, and recommended next challenge
+  • Learning paths (grouped starter sets per category)
+  • Bookmarks (star on cards)
+  • Write-ups unlocked after solving
+  • Local leaderboard (demo scores + your score on this browser)
+  • Display name, light / dark (neon) theme
+  • Export / import progress as JSON
+  • Reset progress
+  • Keyboard: "/" focuses search; Escape closes mobile detail; arrows move selection
+  • Responsive layout with mobile bottom sheet for challenge details
+
+
+How to run
+----------
+
+1. Open the HTML file in a modern browser (Chrome, Firefox, Edge, Safari).
+2. Or serve it with any static file server, for example:
+
+     python -m http.server 8080
+
+   then visit http://localhost:8080
+
+No build step, package manager, or server-side code is required.
+
+
+Usage tips
+----------
+
+  • Click a challenge card (or use the sidebar “Start a Challenge”) to open details.
+  • Submit flags in the form CTF{...}. Wrong format is warned in the UI.
+  • Unlock hints only when stuck; each costs points from that challenge’s reward.
+  • Solved challenges unlock write-ups and appear under My Attempts / Write-ups.
+  • Change your display name under Settings so it shows on the local leaderboard.
+  • Export progress regularly if you want a backup; import restores solved state,
+    bookmarks, and hint usage on this browser.
+
+
+Technical notes
+---------------
+
+  • Pure front-end: HTML, CSS, and JavaScript in one file.
+  • State keys in localStorage: ctf_solved, ctf_bookmarks, ctf_used_hints,
+    ctf_display_name, ctf_theme.
+  • Leaderboard is local/demo only. A shared leaderboard across users needs a backend.
+  • Fake community solve counts and average times are deterministic per challenge id
+    for demo presentation only.
+
+
+License / intent
+----------------
+
+Educational demo for learning CTF-style concepts. Not a production multi-user
+platform. Use for personal practice and teaching. Do not treat flag strings as
+real secrets outside this app.
+
+
+Quick start checklist
+---------------------
+
+  [ ] Open the page in a browser
+  [ ] Optionally set a username in Settings
+  [ ] Solve “First Steps” (or any easy challenge) to confirm flags work
+  [ ] Try a hint and confirm points update
+  [ ] Bookmark a challenge and check the Bookmarks page
+  [ ] Export progress from Settings if you want a backup
+
+
+Tagline
+-------
+
+Think like an attacker. Build like a defender.
 
 
 
