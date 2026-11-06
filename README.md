@@ -119,6 +119,7 @@ Think like an attacker. Build like a defender.
 
 
 # 2. $${\color{limegreen}\text{Python Log Analyzer Pro (Security monitoring tool)}}$$  
+------------------------------------------------------------------------------------
 
 Python Log Analyzer Pro is a Python-based security tool for analyzing log files and identifying suspicious activity.
 
@@ -354,7 +355,7 @@ This project was developed as a practical cybersecurity project focusing on log 
 
 
 # 3. $${\color{blue}\text{Solar Park SCADA Security Monitor}}$$ 
-=================================
+-------------------------------------------------------------
 
 Real-time OT/SCADA dashboard for a solar park with security monitoring.
 
