@@ -353,7 +353,7 @@ This project was developed as a practical cybersecurity project focusing on log 
 
 
 
-3.$${\color{blue}\text{Solar Park SCADA Security Monitor}}$$ 
+3.. $${\color{blue}\text{Solar Park SCADA Security Monitor}}$$ 
 =================================
 
 Real-time OT/SCADA dashboard for a solar park with security monitoring.
