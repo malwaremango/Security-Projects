@@ -5,7 +5,7 @@ See the descriptions below:
 
 
 # 1. $${\color{red}\text{CyberVault}}$$
-==========
+------------------------------------
 
 Unlock. Exploit. Learn.
 
