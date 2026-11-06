@@ -350,3 +350,45 @@ The results should be treated as an aid during log investigations and should not
 Cybersecurity / Information Security
 
 This project was developed as a practical cybersecurity project focusing on log analysis, suspicious activity detection, and security monitoring.
+
+
+
+$${\color{blue}\text{Solar Park SCADA Security Monitor}}$$ 
+=================================
+
+Real-time OT/SCADA dashboard for a solar park with security monitoring.
+
+Features
+--------
+- Live telemetry (power, temperature, irradiance)
+- Single-line diagram
+- Inverter status overview
+- OT security alerts
+- Dark industrial UI inspired by modern energy SCADA systems
+
+Tech
+----
+- Python (Flask backend expected)
+- HTML / CSS / vanilla JavaScript
+- No external frontend frameworks
+
+Quick start
+-----------
+1. Place the dashboard code in your Flask app (or equivalent)
+2. Expose a /data endpoint that returns JSON with:
+   - status, power_mw, temperature
+   - alerts (list of {timestamp, level, message})
+   - optional: inverters, poa, setpoint, etc.
+3. Serve the HTML from get_dashboard()
+
+Example JSON response from /data:
+{
+  "status": "ONLINE",
+  "power_mw": 4.26,
+  "temperature": 20.9,
+  "alerts": []
+}
+
+Notes
+-----
+This is a frontend template. Backend logic for Modbus, PLC, and intrusion detection must be implemented separately.
