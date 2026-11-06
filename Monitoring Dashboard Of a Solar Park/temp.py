@@ -4,7 +4,7 @@ Created on Thu Sep 17 12:10:04 2026
 
 @author: usah5
 """
-#run this script to display the monitor dashboad on web browser
+#run this script to display the monitoring dashboad (dashboard.py) on a web browser 
 import time
 import random
 from threading import Thread, Lock
