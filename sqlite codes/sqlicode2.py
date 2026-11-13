@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov  9 13:43:22 2026
-
 @author: usah5
 """
 
