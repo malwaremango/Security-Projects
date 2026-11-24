@@ -290,7 +290,7 @@ Tkinter is included with many Python installations. Depending on the operating s
 ```bash
 python main.py
 ```
-```or use cmd "py <filename>" or linux terminal "python3 <filename>"```
+```or use cmd "py <filename>" and linux terminal "python3 <filename>"```
 ## Example Log Analysis
 
 The application can analyze log entries containing events such as:
