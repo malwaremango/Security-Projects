@@ -290,7 +290,7 @@ Tkinter is included with many Python installations. Depending on the operating s
 ```bash
 python main.py
 ```
-
+or use cmd "py <filename>" or linux terminal "python3 <filename>"
 ## Example Log Analysis
 
 The application can analyze log entries containing events such as:
@@ -307,7 +307,9 @@ Privilege escalation
 ```
 
 The analyzer processes the log content and presents relevant security events through the graphical interface.
-
+## Versions
+   V1 supports for .log files only
+   V3 is the latest version of the tool which includes added support for .evtx files
 ## Use Cases
 
 This project can be used for learning and practical work in areas such as:
