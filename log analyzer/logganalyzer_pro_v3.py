@@ -12,6 +12,7 @@ import csv
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+import html
 import json
 import os
 import re
@@ -19,6 +20,7 @@ import threading
 import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+import xml.etree.ElementTree as ET
 
 from Evtx.Evtx import Evtx
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -73,6 +75,37 @@ MITRE_TECHNIQUES = {
     "LaZagne": {"technique_id": "T1555", "name": "Credentials from Password Stores"},
 }
 
+MITRE_REMEDIES = {
+    "T1204": "Isoler berørt arbeidsstasjon, blokker filhash/filnavn, inspiser prosesskjeden etter brukerinteraksjon og kjør full EDR/malware-skanning.",
+    "T1565": "Verifiser filhash og integritet mot sikker baseline, gjenopprett manipulerte filer fra verifisert backup og stram inn skrivetilgang til sensitive filer.",
+    "T1078": "Gjennomgå innloggingskilde, geografisk/nettverkskontekst og privilegienivå; tilbakestill passord, revoker aktive økter og håndhev MFA på berørte kontoer.",
+    "T1190": "Isoler eller sett den eksponerte applikasjonen i vedlikeholdsmodus, påfør sikkerhetsoppdateringer/WAF-regler umiddelbart og søk gjennom applikasjonslogger etter utnyttelse.",
+    "T1014": "Isoler verten umiddelbart, utfør minne- og kjernedump/forensisk analyse, og gjeninstaller operativsystemet fra ren image fremfor å stole på lokal opprydding.",
+    "T1566": "Blokker skadelige avsendere, domener, URL-er og vedlegg i e-postgateway, sjekk videresendingsregler/OAuth-apper og nullstill legitimasjon for brukere som kan ha interagert.",
+    "T1041": "Blokker utgående C2-destinasjoner/IP-er i brannmur og proxy, kartlegg hvilke data som ble berørt og utfør DLP- og lekkasjevurdering.",
+    "T1110": "Blokker eller begrens kilde-IP i brannmur/WAF, aktiver kontolåsing eller rate limiting/backoff, og håndhev MFA for å hindre suksessfull pålogging.",
+    "T1003": "Isoler berørt vert, undersøk tilgang til LSASS, SAM/SECURITY-registre og ntds.dit, tøm aktive økter/Kerberos-billetter og roter privilegerte passord og KRBTGT-nøkkel ved behov.",
+    "T1059": "Undersøk full kommandolinje, foreldreprosess og dekodet skriptinnhold; skjerp skriptlogging (Script Block/Module logging) og begrens uautorisert tolkekjøring (PowerShell/cmd/skript).",
+    "T1059.007": "Undersøk hvilken prosess som opprettet og kjørte .js/.jse-filen, verifiser filsignatur og vurder å blokkere eller begrense skriptmotorer som wscript.exe og cscript.exe.",
+    "T1047": "Undersøk WMI-kommandoer, navneområder, foreldreprosess og eventuelle barneprosesser eller permanente WMI-abonnenter startet via wmiprvse.exe.",
+    "T1083": "Kartlegg hvilken bruker og prosess som utførte fil-/katalogsøket, sjekk om dette følges av pakking eller eksfiltrering, og begrens unødig lesetilgang til sensitive mapper.",
+    "T1053": "Inspiser nye eller endrede planlagte oppgaver, tjenester og Run-nøkler; fjern uautorisert persistens og spor tilbake til prosessen som opprettet den.",
+    "T1574.002": "Undersøk prosessen som lastet DLL-en, sjekk filbane og digital signatur på DLL-en, og korriger søkesti/DLL-plassering eller applikasjonskonfigurasjon.",
+    "T1574.010": "Stram inn fil- og mappetillatelser (f.eks. med icacls) på tjenestens binærfil og tilhørende kataloger slik at vanlige brukere ikke kan skrive til dem.",
+    "T1071": "Undersøk mistenkelige utgående tilkoblinger, domener, User-Agent og intervaller (beaconing), og blokker uautoriserte C2-kanaler i nettverkskontroller.",
+    "T1098": "Gjennomgå endringer i kontoattributter, gruppemedlemskap, nøkler eller tilgangsrettigheter, rull tilbake uautoriserte endringer og verifiser administratortilganger.",
+    "T1588": "Undersøk hvem som hentet eller lastet ned verktøyet og hvor det er lagret; blokker verktøyet i EDR/APPLOCKER og søk etter videre bruk i miljøet.",
+    "T1070": "Undersøk umiddelbart hvorfor logger ble tømt, stoppet eller endret, verifiser videresending til sentral logg/SIEM og sikring av loggtjenester.",
+    "T1136": "Verifiser om nyopprettede kontoer er godkjent via endringsprosess; deaktiver eller slett uautoriserte kontoer og kontroller tilhørende rettigheter.",
+    "T1558": "Undersøk unormale TGT-/TGS-forespørsler, Kerberos-feil og billettbruk; roter berørte tjenestekontoer/KRBTGT og skjerp autentiseringspolicyer.",
+    "T1543": "Undersøk nyopprettede systemtjenester eller prosesser, verifiser binærfil og opphav, og stans/fjern uautoriserte tjenester.",
+    "T1021": "Kontroller tilgang til nettverksdeler og fjerntjenester (SMB/RDP/WinRM), sjekk hvem som koblet til og stram inn segmentering og tilgangskontroll.",
+    "T1562": "Gjennomgå endringer i brannmurregler og revisjonspolicyer umiddelbart, gjenopprett sikker policy og undersøk årsaken til at forsvarsmekanismer ble endret.",
+    "T1570": "Kartlegg filer og verktøy som ble overført mellom verter, blokker uautorisert lateral verktøyoverføring og undersøk kilden og målverten.",
+    "T1087": "Undersøk hvilken konto og vert som utførte katalog-/kontooppslag, se etter tegn på privilegert kartlegging og skjerp overvåking av AD/identitetskilder.",
+    "T1555": "Anta at lagret legitimasjon (nettlesere, nøkkelringer, konfigurasjoner) kan være eksponert; tving passordbytte, revoker sesjoner og fjern lagrede hemmeligheter i klartekst.",
+}
+
 
 def get_technique_info(key_or_label):
     if not key_or_label:
@@ -93,6 +126,21 @@ def get_technique_info(key_or_label):
     if key_or_label.startswith("Malware:"):
         return ("T1204", "User Execution")
     return ("T0000", key_or_label.replace("_", " ").title())
+
+
+def get_remedy_for_activity(activity_key_or_label, fallback=None):
+    tech_id, _ = get_technique_info(activity_key_or_label)
+    if tech_id in MITRE_REMEDIES:
+        return MITRE_REMEDIES[tech_id]
+    if activity_key_or_label in remedies:
+        return remedies[activity_key_or_label]
+    cleaned = activity_key_or_label.replace("Security Tool:", "").replace("Malware:", "").strip()
+    if cleaned in remedies:
+        return remedies[cleaned]
+    normalized = activity_key_or_label.lower().strip().replace(" ", "_")
+    if normalized in remedies:
+        return remedies[normalized]
+    return fallback or "Undersøk hendelsen nærmere."
 
 
 patterns = {
@@ -177,32 +225,32 @@ severity = {
 severity_rank = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}
 
 remedies = {
-    "malware": "Isoler berørt system og kjør full malware-skanning.",
-    "file_tampering": "Kontroller filintegritet og gjenopprett berørte filer fra backup.",
-    "unauthorized_access": "Kontroller kontoaktivitet, tilbakestill passord og vurder MFA.",
-    "security_breach": "Isoler berørte systemer og start en hendelsesundersøkelse.",
-    "advanced_malware": "Isoler systemet og bruk avanserte endpoint- og threat hunting-verktøy.",
-    "phishing": "Undersøk avsender, kontoaktivitet og forbedre e-postfiltrering.",
-    "data_leakage": "Finn lekkasjekilden og vurder DLP, tilgangskontroll og logging.",
-    "brute_force": "Blokker eller begrens kilde-IP og vurder MFA/rate limiting.",
-    "credential_dumping": "Isoler berørt maskin, kontroller LSASS-tilgang og tilbakestill berørte kontoer.",
-    "suspicious_execution": "Undersøk prosessens kommandolinje, skriptaktivitet og tilhørende prosesser.",
-    "javascript_activity": "Kontroller prosessen som opprettet JavaScript-filen, filens hash/signatur og eventuell kjøring.",
-    "wmi_execution": "Undersøk WMI-kommandoer, foreldreprosess og eventuelle prosesser startet via WMI.",
-    "file_and_directory_discovery": "Kartlegg hvilken prosess og bruker som søkte etter filer/mapper, og se etter videre aktivitet.",
-    "suspicious_persistence": "Undersøk nye tjenester, planlagte oppgaver og registerendringer.",
-    "dll_side_loading": "Undersøk om en legitim prosess laster en uautorisert eller mistenkelig DLL fra feil mappe.",
-    "services_file_permissions": "Kontroller og stram inn filrettigheter på tjenestens binærfiler og tilhørende mapper.",
-    "suspicious_network": "Undersøk nettverkstrafikk, tilkoblinger og mistenkelige IP-adresser.",
-    "account_manipulation": "Kontroller kontoendringer, gruppemedlemskap og tilgangsrettigheter.",
-    "security_tool": "Undersøk om sikkerhetsverktøyet er autorisert og hvem som startet det.",
-    "log_integrity": "Undersøk umiddelbart hvorfor sikkerhetsloggen ble tømt, full eller stoppet.",
-    "authentication_logons": "Gjennomgå innloggingsmønstre, eksplisitt legitimasjon og tildeling av privilegier.",
-    "account_management": "Verifiser om kontoopprettelse, aktivering, sletting eller gruppeendringer er autorisert.",
-    "kerberos_ad": "Kontroller autentiseringslogger for unormale billettforespørsler eller feil.",
-    "process_execution": "Undersøk nye prosesser, installerte tjenester og planlagte oppgaver.",
-    "object_share_access": "Kontroller tilgang til sensitive filer, registernøkler og delte nettverksressurser.",
-    "policy_firewall": "Verifiser endringer i revisjonspolicy og brannmurregler.",
+    "malware": MITRE_REMEDIES["T1204"],
+    "file_tampering": MITRE_REMEDIES["T1565"],
+    "unauthorized_access": MITRE_REMEDIES["T1078"],
+    "security_breach": MITRE_REMEDIES["T1190"],
+    "advanced_malware": MITRE_REMEDIES["T1014"],
+    "phishing": MITRE_REMEDIES["T1566"],
+    "data_leakage": MITRE_REMEDIES["T1041"],
+    "brute_force": MITRE_REMEDIES["T1110"],
+    "credential_dumping": MITRE_REMEDIES["T1003"],
+    "suspicious_execution": MITRE_REMEDIES["T1059"],
+    "javascript_activity": MITRE_REMEDIES["T1059.007"],
+    "wmi_execution": MITRE_REMEDIES["T1047"],
+    "file_and_directory_discovery": MITRE_REMEDIES["T1083"],
+    "suspicious_persistence": MITRE_REMEDIES["T1053"],
+    "dll_side_loading": MITRE_REMEDIES["T1574.002"],
+    "services_file_permissions": MITRE_REMEDIES["T1574.010"],
+    "suspicious_network": MITRE_REMEDIES["T1071"],
+    "account_manipulation": MITRE_REMEDIES["T1098"],
+    "security_tool": MITRE_REMEDIES["T1588"],
+    "log_integrity": MITRE_REMEDIES["T1070"],
+    "authentication_logons": MITRE_REMEDIES["T1078"],
+    "account_management": MITRE_REMEDIES["T1136"],
+    "kerberos_ad": MITRE_REMEDIES["T1558"],
+    "process_execution": MITRE_REMEDIES["T1543"],
+    "object_share_access": MITRE_REMEDIES["T1021"],
+    "policy_firewall": MITRE_REMEDIES["T1562"],
 }
 
 WINDOWS_EVENT_HINTS = {
@@ -268,8 +316,12 @@ SYSTEM_TIME_ATTR_RE = re.compile(
     r"""SystemTime\s*=\s*['"](\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)['"]""",
     re.IGNORECASE,
 )
+XML_TIMESTAMP_RE = re.compile(
+    r"""(?:<\s*[^>\s]*timestamp[^>]*>|(?:\b|_)timestamp\s*[:=]\s*['"]?)(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)""",
+    re.IGNORECASE,
+)
 ISO_PATTERN = re.compile(
-    r"(?<!\S)(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)(?!\S)"
+    r"(?<!\w)(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)(?!\w)"
 )
 TIMESTAMP_PATTERNS = [
     re.compile(r"(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})"),
@@ -397,10 +449,79 @@ def save_patterns():
         json.dump({"patterns": patterns, "remedies": remedies}, f, indent=2, ensure_ascii=False)
 
 
+def _strip_ns(tag):
+    return tag.split("}", 1)[-1] if "}" in tag else tag
+
+
+def _flatten_element(elem, batch_attrs=None):
+    parts = []
+    if batch_attrs:
+        meta_str = " ".join(f"{k}={v}" for k, v in batch_attrs.items() if v)
+        if meta_str:
+            parts.append(f"[Batch: {meta_str}]")
+
+    tag_name = _strip_ns(elem.tag)
+    attr_str = " ".join(f"{_strip_ns(k)}={v}" for k, v in elem.attrib.items() if v)
+    if attr_str:
+        parts.append(f"[{tag_name}: {attr_str}]")
+
+    for child in elem.iter():
+        ctag = _strip_ns(child.tag)
+        if child.attrib:
+            cattr = ", ".join(f"{_strip_ns(k)}={v}" for k, v in child.attrib.items() if v)
+            parts.append(f"{ctag}({cattr})")
+        if child.text and child.text.strip():
+            parts.append(f"{ctag}={html.unescape(child.text.strip())}")
+        if child is not elem and child.tail and child.tail.strip():
+            parts.append(html.unescape(child.tail.strip()))
+
+    return " | ".join(parts)
+
+
+def load_xml_lines(filepath):
+    """Analyserer en XML-fil og returnerer én samlet loggpost per LogEntry/Event."""
+    with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+        raw_text = f.read()
+
+    if not raw_text.strip():
+        return []
+
+    try:
+        root = ET.fromstring(raw_text)
+    except ET.ParseError:
+        cleaned = re.sub(r"<!\[CDATA\[(.*?)\]\]>", r"\1", raw_text, flags=re.DOTALL)
+        return [html.unescape(line) for line in cleaned.splitlines() if line.strip()]
+
+    root_tag = _strip_ns(root.tag)
+    batch_attrs = {
+        _strip_ns(k): v
+        for k, v in root.attrib.items()
+        if _strip_ns(k).lower() in {"batchid", "environment", "server", "host", "source"}
+    }
+
+    if root_tag.lower() == "logbatch":
+        entries = [el for el in root if _strip_ns(el.tag).lower() == "logentry"]
+    elif root_tag.lower() == "logentry":
+        entries = [root]
+    else:
+        entries = [el for el in root.iter() if _strip_ns(el.tag).lower() in {"logentry", "event", "record", "entry"}]
+        if not entries:
+            entries = list(root) if len(root) > 0 else [root]
+
+    formatted = []
+    for entry in entries:
+        line = _flatten_element(entry, batch_attrs=batch_attrs)
+        if line.strip():
+            formatted.append(line)
+    return formatted
+
+
 def detect_log_type(line, source_file=""):
     lower = line.lower()
     if source_file.lower().endswith(".evtx") or "<event" in lower or "schemas.microsoft.com/win/2004/08/events/event" in lower:
         return "Windows Event Log (.evtx)"
+    if source_file.lower().endswith(".xml") or "[logentry:" in lower or "[batch:" in lower:
+        return "XML Log"
     if "cef:" in lower:
         return "CEF / SIEM Security Log"
     if "sshd" in lower or "authentication failure" in lower:
@@ -431,6 +552,19 @@ def _parse_iso_dt(raw):
 
 
 def extract_timestamp(line, reference_year=None):
+    m_xml_ts = XML_TIMESTAMP_RE.search(line)
+    if m_xml_ts:
+        raw_ts = m_xml_ts.group(1).strip()
+        if "T" in raw_ts:
+            dt = _parse_iso_dt(raw_ts)
+            if dt is not None:
+                return dt
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+            try:
+                return datetime.strptime(raw_ts[:19], fmt)
+            except ValueError:
+                pass
+
     m_sys_time = SYSTEM_TIME_ATTR_RE.search(line)
     if m_sys_time:
         dt = _parse_iso_dt(m_sys_time.group(1))
@@ -785,15 +919,15 @@ def analyze_lines(lines, source_file, target_analysis=None, compiled_patterns=No
                 mal_name = act.split(":", 1)[1].strip()
                 data["malware"][mal_name] += 1
                 base_sev = severity.get("malware", "HIGH")
-                rem = remedies.get("malware", remedies["suspicious_execution"])
+                rem = get_remedy_for_activity(act, remedies["malware"])
             elif act.startswith("Security Tool:"):
                 data["counts"]["security_tool"] += 1
                 base_sev = severity.get("security_tool", "MEDIUM")
-                rem = remedies.get("security_tool", remedies["suspicious_execution"])
+                rem = get_remedy_for_activity(act, remedies["security_tool"])
             else:
                 data["counts"][act] += 1
                 base_sev = severity.get(act, "MEDIUM")
-                rem = remedies.get(act, "Undersøk hendelsen nærmere.")
+                rem = get_remedy_for_activity(act, "Undersøk hendelsen nærmere.")
 
             final_sev = escalate_severity(base_sev, eval_res.status, eval_res.confidence)
             tech_id, tech_name = get_technique_info(act)
@@ -925,6 +1059,7 @@ class LogAnalyzerV3App:
     ACCENT_BLUE = "#1D70B8"
     ACCENT_DARK = "#2C3E50"
     ACCENT_GREEN = "#2E9E5B"
+    ACCENT_TEAL = "#0F766E"
     ACCENT_RED = "#B91C1C"
     TEXT_DARK = "#1E293B"
     TEXT_MUTED = "#5A6778"
@@ -1199,6 +1334,9 @@ class LogAnalyzerV3App:
         ).pack(side=tk.LEFT, padx=(0, 10))
         self._make_action_button(
             btn_row, "Eksporter CSV", self.ACCENT_GREEN, self.export_csv
+        ).pack(side=tk.LEFT, padx=(0, 10))
+        self._make_action_button(
+            btn_row, "📄 Full analyserapport", self.ACCENT_TEAL, self.generate_full_report
         ).pack(side=tk.LEFT)
 
         self.overview_status_var = tk.StringVar(
@@ -1417,9 +1555,10 @@ class LogAnalyzerV3App:
             font=("Segoe UI", 9, "bold"),
         ).pack(side=tk.LEFT)
 
-        cols = ("timestamp", "activity", "status", "confidence", "severity", "technique_id", "ips", "file")
+        cols = ("num", "timestamp", "activity", "status", "confidence", "severity", "technique_id", "ips", "file")
         self.tree = ttk.Treeview(self.tab_details, columns=cols, show="headings", style="Pro.Treeview", height=13)
         headers = {
+            "num": "Hendelsesnr.",
             "timestamp": "Tidspunkt",
             "activity": "Aktivitet",
             "status": "Status",
@@ -1430,6 +1569,7 @@ class LogAnalyzerV3App:
             "file": "Fil",
         }
         widths = {
+            "num": 55,
             "timestamp": 155,
             "activity": 195,
             "status": 95,
@@ -1441,7 +1581,7 @@ class LogAnalyzerV3App:
         }
         for col in cols:
             self.tree.heading(col, text=headers[col])
-            self.tree.column(col, width=widths[col], anchor=tk.W)
+            self.tree.column(col, width=widths[col], anchor=tk.CENTER if col == "num" else tk.W)
 
         scroll = ttk.Scrollbar(self.tab_details, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=scroll.set)
@@ -1654,6 +1794,9 @@ class LogAnalyzerV3App:
                                 compiled_patterns=compiled,
                             )
                             batch.clear()
+                    elif ext == ".xml":
+                        lines = load_xml_lines(path)
+                        analyze_lines(lines, fname, target_analysis=temp_analysis, compiled_patterns=compiled)
                     else:
                         with open(path, "r", encoding="utf-8", errors="replace") as f:
                             lines = f.readlines()
@@ -1750,7 +1893,7 @@ class LogAnalyzerV3App:
                 f"{k} ({tech_id} – {tech_name})",
                 f"{v} treff (Confirmed: {cat_s['confirmed']}, Indicator: {cat_s['indicator']})",
                 f"Alvorlighetsgrad registrert som {severity.get(k, 'MEDIUM')} for kategori «{k}».",
-                remedies.get(k, "Undersøk hendelsen nærmere."),
+                get_remedy_for_activity(k),
                 badge_text=f"TREFF: {v}",
             )
         for mal_name, c in sorted(last_analysis["malware"].items(), key=lambda kv: kv[1], reverse=True):
@@ -1759,7 +1902,7 @@ class LogAnalyzerV3App:
                 f"Malware: {mal_name} (T1204 – User Execution)",
                 f"{c} treff",
                 f"Kjent skadevare-navn «{mal_name}» ble identifisert i logggrunnlaget.",
-                remedies.get("malware", "Isoler berørt system og kjør full malware-skanning."),
+                get_remedy_for_activity(f"Malware: {mal_name}", remedies["malware"]),
                 badge_text="HIGH · MALWARE",
             )
         self._update_activity_chart()
@@ -1776,7 +1919,7 @@ class LogAnalyzerV3App:
                 f"Brute-force fra {bf_ip}",
                 f"{bf['attempts']} mislykkede forsøk innen {bf['window']} min ({bf['start']} -> {bf['end']})",
                 f"Kilde-IP ({bf_ip}) overskred terskelen for brute-force i filen {bf['file']}.",
-                remedies.get("brute_force", "Blokker eller begrens kilde-IP og vurder MFA/rate limiting."),
+                get_remedy_for_activity("brute_force", remedies["brute_force"]),
                 badge_text="HIGH · BRUTE FORCE",
             )
         if not last_analysis["ips"]:
@@ -1815,14 +1958,13 @@ class LogAnalyzerV3App:
             )
         else:
             for ev in sorted_tl[:MAX_UI_CARDS]:
-                base_key = ev["activity"].split(":", 1)[0].strip().lower().replace(" ", "_")
                 ev_ips = ev.get("ips") or "ingen detektert"
                 self._create_finding_card(
                     self.timeline_cards_container,
                     f"{ev['timestamp'].isoformat(sep=' ')} — {ev['activity']}",
                     f"Fil: {ev['file']}  |  IP: {ev_ips}  |  Status: {ev['status']} ({ev['confidence']})",
                     f"Hendelse registrert på tidslinjen med alvorlighetsgrad {ev['severity']}.",
-                    remedies.get(base_key, "Undersøk hendelsen i «Details»."),
+                    get_remedy_for_activity(ev["activity"], "Undersøk hendelsen i «Details»."),
                     badge_text=ev["severity"],
                 )
             if len(sorted_tl) > MAX_UI_CARDS:
@@ -1862,7 +2004,7 @@ class LogAnalyzerV3App:
 
         shown = 0
         total = len(last_analysis["details"])
-        for i, d in enumerate(last_analysis["details"]):
+        for orig_idx, d in enumerate(last_analysis["details"]):
             act_val = str(d.get("activity", ""))
             sev_val = str(d.get("severity", ""))
             if selected_activity and selected_activity != "Alle" and act_val != selected_activity:
@@ -1891,16 +2033,24 @@ class LogAnalyzerV3App:
             if query and query not in haystack:
                 continue
 
+            shown += 1
             self.tree.insert(
                 "",
                 tk.END,
-                iid=str(i),
+                iid=f"row_{shown}",
+                tags=(str(orig_idx),),
                 values=(
-                    d["timestamp"], act_val, d["status"], d["confidence"],
-                    sev_val, d["technique_id"], ip_val, d["file"],
+                    shown,
+                    d["timestamp"],
+                    act_val,
+                    d["status"],
+                    d["confidence"],
+                    sev_val,
+                    d["technique_id"],
+                    ip_val,
+                    d["file"],
                 ),
             )
-            shown += 1
 
         if hasattr(self, "details_count_var"):
             self.details_count_var.set(f"Viser {shown} av {total} funn")
@@ -1909,7 +2059,10 @@ class LogAnalyzerV3App:
         sel = self.tree.selection()
         if not sel:
             return
-        idx = int(sel[0])
+        tags = self.tree.item(sel[0], "tags")
+        if not tags:
+            return
+        idx = int(tags[0])
         if idx < 0 or idx >= len(last_analysis["details"]):
             return
         d = last_analysis["details"][idx]
@@ -1917,8 +2070,8 @@ class LogAnalyzerV3App:
         self.detail_box.delete("1.0", tk.END)
         self.detail_box.insert(
             tk.END,
-            f"Aktivitet: {d['activity']} | IP: {ip_val} | Status: {d['status']} | Confidence: {d['confidence']} | "
-            f"Alvorlighet: {d['severity']} | MITRE: {d['technique_id']} ({d['technique_name']})\n"
+            f"Hendelse #{sel[0].replace('row_', '')} | Aktivitet: {d['activity']} | IP: {ip_val} | Status: {d['status']} | "
+            f"Confidence: {d['confidence']} | Alvorlighet: {d['severity']} | MITRE: {d['technique_id']} ({d['technique_name']})\n"
             f"Årsaker: {d['reasons'] or '-'}\n"
             f"Anbefalt tiltak: {d['remedy']}\n"
             f"Linje: {d['line']}",
@@ -1947,6 +2100,137 @@ class LogAnalyzerV3App:
             writer.writerows(last_analysis["details"])
 
         messagebox.showinfo("Eksportert", f"Lagret til:\n{path}")
+
+    def generate_full_report(self):
+        if not last_analysis["files"] and not last_analysis["details"] and last_analysis["total_lines"] == 0:
+            messagebox.showinfo("Ingen data", "Det er ingen logganalyse å generere rapport fra ennå.")
+            return
+
+        path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Tekstrapport", "*.txt"), ("Markdown-rapport", "*.md")],
+            initialfile=f"full_security_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+        )
+        if not path:
+            return
+
+        stats = last_analysis["finding_stats"]
+        files_list = ", ".join(os.path.basename(f) for f in last_analysis["files"]) or "Ingen filer"
+        log_types_list = ", ".join(last_analysis["log_types"]) or "Ingen gjenkjent"
+
+        lines_out = [
+            "=" * 78,
+            "PYTHON LOG ANALYZER PRO v3 – FULL ANALYSERAPPORT",
+            "=" * 78,
+            f"Generert:         {datetime.now().isoformat(sep=' ', timespec='seconds')}",
+            f"Analyserte filer:  {files_list}",
+            f"Totalt linjer:    {last_analysis['total_lines']}",
+            f"Gjenkjente typer: {log_types_list}",
+            f"Totalt funn:      {len(last_analysis['details'])} (Confirmed: {stats['confirmed']}, Indicator: {stats['indicator']})",
+            f"Angrepsscenarier: {len(last_analysis['attack_scenarios'])}",
+            f"Brute-force:      {len(last_analysis['brute_force'])}",
+            "",
+            "-" * 78,
+            "1. POTENSIELLE ANGREPSSCENARIER",
+            "-" * 78,
+        ]
+
+        if not last_analysis["attack_scenarios"]:
+            lines_out.append("Ingen korrelerte angrepsscenarier identifisert.")
+        else:
+            for idx, sc in enumerate(last_analysis["attack_scenarios"], start=1):
+                lines_out.extend([
+                    f"[{idx}] {sc['name']} ({sc['technique_id']}) | Alvorlighet: {sc['severity']} | Confidence: {sc['confidence']}",
+                    f"    Indikatorer: {sc['indicators']}",
+                    f"    Vurdering:   {sc['description']}",
+                    f"    Tiltak:      {sc['action']}",
+                    "",
+                ])
+
+        lines_out.extend([
+            "-" * 78,
+            "2. KATEGORIER, MALWARE OG MITRE-TILTAK",
+            "-" * 78,
+        ])
+
+        has_any_cat = False
+        for k, v in sorted(last_analysis["counts"].items(), key=lambda kv: kv[1], reverse=True):
+            has_any_cat = True
+            cat_s = stats["by_category"].get(k, {"confirmed": 0, "indicator": 0})
+            tech_id, tech_name = get_technique_info(k)
+            lines_out.extend([
+                f"* {k} ({tech_id} – {tech_name}) — {v} treff (Confirmed: {cat_s['confirmed']}, Indicator: {cat_s['indicator']})",
+                f"  Alvorlighet: {severity.get(k, 'MEDIUM')}",
+                f"  Tiltak:      {get_remedy_for_activity(k)}",
+                "",
+            ])
+
+        for mal_name, c in sorted(last_analysis["malware"].items(), key=lambda kv: kv[1], reverse=True):
+            has_any_cat = True
+            lines_out.extend([
+                f"* Malware: {mal_name} (T1204 – User Execution) — {c} treff",
+                f"  Alvorlighet: {severity.get('malware', 'HIGH')}",
+                f"  Tiltak:      {get_remedy_for_activity(f'Malware: {mal_name}', remedies['malware'])}",
+                "",
+            ])
+
+        if not has_any_cat:
+            lines_out.append("Ingen mistenkelige kategorier eller malware-treff registrert.")
+            lines_out.append("")
+
+        lines_out.extend([
+            "-" * 78,
+            "3. BRUTE-FORCE OG IP-OVERSIKT",
+            "-" * 78,
+        ])
+
+        if last_analysis["brute_force"]:
+            for idx, bf in enumerate(last_analysis["brute_force"], start=1):
+                bf_ip = bf["ip"] if bf["ip"] and bf["ip"] != "unknown" else "ingen detektert"
+                lines_out.extend([
+                    f"[BF-{idx}] IP: {bf_ip} | {bf['attempts']} forsøk innen {bf['window']} min ({bf['start']} -> {bf['end']}) | Fil: {bf['file']}",
+                    f"       Tiltak: {get_remedy_for_activity('brute_force', remedies['brute_force'])}",
+                    "",
+                ])
+        else:
+            lines_out.append("Ingen brute-force-hendelser registrert.")
+            lines_out.append("")
+
+        if last_analysis["ips"]:
+            for ip, info in sorted(last_analysis["ips"].items(), key=lambda kv: kv[1]["total"], reverse=True):
+                acts = ", ".join(f"{k} ({v})" for k, v in info["activity"].items())
+                lines_out.append(f"* IP {ip}: {info['total']} treff | Alvorlighet: {info['severity']} | Aktiviteter: {acts}")
+            lines_out.append("")
+        else:
+            lines_out.append("Ingen IP-adresser detektert i loggene.")
+            lines_out.append("")
+
+        lines_out.extend([
+            "-" * 78,
+            "4. DETALJERTE FUNN",
+            "-" * 78,
+        ])
+
+        if not last_analysis["details"]:
+            lines_out.append("Ingen detaljerte funn registrert.")
+        else:
+            for idx, d in enumerate(last_analysis["details"], start=1):
+                ip_val = d.get("ips") if d.get("ips") and d.get("ips") != "-" else "ingen detektert"
+                lines_out.extend([
+                    f"#{idx} | {d['timestamp']} | {d['activity']} | MITRE: {d['technique_id']} ({d['technique_name']})",
+                    f"     Status: {d['status']} | Confidence: {d['confidence']} | Alvorlighet: {d['severity']} | IP: {ip_val} | Fil: {d['file']}",
+                    f"     Årsaker: {d['reasons'] or '-'}",
+                    f"     Tiltak:  {d['remedy']}",
+                    f"     Logg:    {d['line']}",
+                    "",
+                ])
+
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines_out))
+            messagebox.showinfo("Rapport generert", f"Full analyserapport lagret til:\n{path}")
+        except Exception as exc:
+            messagebox.showerror("Feil ved lagring", f"Kunne ikke lagre rapport:\n{exc}")
 
     def show_timeline_chart(self):
         events = [e for e in last_analysis["timeline"] if e["timestamp"] is not None]
